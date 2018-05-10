@@ -177,6 +177,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /**
+         * butternut Service Providers
+         */
+        App\Providers\SnapMidtransServiceProvider::class,
     ],
 
     /*

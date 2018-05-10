@@ -26,9 +26,10 @@ class SubscriptionTable extends Migration
         Schema::create('subs_transaction', function(Blueprint $table) {
             $table->increments('id');
             $table->dateTime('date');
-            $table->dateTime('subs_end');
-            $table->string('payment_method', 30);
-
+            $table->dateTime('subs_end')->nullable();
+            $table->string('payment_method', 80);
+            $table->string('payment_status', 80)->nullable();
+            $table->string('order_id',50)->nullable();
             $table->integer('owner_id')->unsigned();
             $table->foreign('owner_id')->references('id')->on('owner')->onDelete('cascade');
             $table->integer('subs_plan_id')->unsigned();

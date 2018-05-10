@@ -487,4 +487,78 @@ class SubscriptionTransactionController extends Controller
 
         return response()->json(['error' => 'Permission denied.'], 403);
     }
+
+// ===============================================================================================================
+// ===============================================================================================================
+
+    /**
+     * function to handle http post notification from midtrans.
+     * if transaction happens, or change in transaction status
+     * 
+     * @param $request
+     * @return Illuminate\Http\Response
+     */
+    public function MidtrNotif(Request $request){
+        $status = $request->status_code;
+
+        // if status are 'success', 'pending', fraud challenge, or cancelled by payment gateway
+        if ($status == '200'||$status == '201'||$status == '202'){
+            
+            //challenge status, confirm with payment gateway if the data was correct
+            $challenge = \App\Butternut\SnapMidtrans::getOrderStatus($request->transaction_id);
+            $owner = \App\Owner::find($request->custom_field1);
+            $subs_plan = \App\SubscriptionPlan::find($request->custom_field2);
+
+            //if challenge success, the owner exist and subscription plan exist
+            if (($challenge->status_code == $status) && ( $owner !== NULL ) &&( $subs_plan !== NULL )) {
+                $now = \Carbon\Carbon::now();
+
+                // check if transaction recorded before
+                if (\App\SubscriptionTransaction::where('order_id',$request->order_id)->count() > 0) {
+                    $transaction = \App\SubscriptionTransaction::where('order_id',$request->order_id)->first();
+                } else {
+                    $transaction = new \App\SubscriptionTransaction;
+                    $transaction->date = \Carbon\Carbon::now();
+                    $transaction->subs_end = $now;
+                    $transaction->order_id = $request->order_id;
+                    $transaction->owner()->associate($owner);
+                    $transaction->plan()->associate($subs_plan);
+                    $transaction->payment_method = $request->payment_type;
+                };
+
+                // if status are success and fraud_status are accept
+                if (($status=='200')&&($request->fraud_status=='accept')) {
+                    $transStat = $request->transaction_status;
+                    
+                    // if status are capture and not settlement of credit card 
+                    if (($transStat=='settlement' && $transaction->payment_status!='capture')||$transStat=='capture') {
+                        
+                        // check if owner still has remaining days in his subscription
+                        if ($last_transaction=\App\SubscriptionTransaction::where('subs_plan_id', $subs_plan)->where('subs_end','>',$now)->latest('subs_end')->first()) {
+                            $transaction->subs_end = $last_transaction->subs_end->addDays($subs_plan->duration_day);
+                        } else {
+                            $transaction->subs_end = $now->addDays($subs_plan->duration_day);
+                        };
+                    };
+                    $msg = 'subscription added';
+
+                  //if status are canceled and owner is considered subscribed  
+                } elseif (\Carbon\Carbon::parse($transaction->subs_end)->gt($now)) {
+                    $transaction->subs_end = $now;
+                    $msg = 'subscription cancelled';
+                } else {
+                    $msg = $request->transaction_status;
+                }
+
+                // if fraud_status is challenged admin must go to payment gateway control panel (midtrans.com) to finish the transaction
+                $transaction->payment_status = ($request->fraud_status != 'challenge')? $request->transaction_status : "CHALLENGE!";
+                $transaction->save();
+                return response()->json(['status_code'=>$status,'status_message'=>$msg]);
+            } else {
+                return response()->json(['status_code'=>$status,'status_message'=>'challenge failed !','param'=>$subs_plan]);
+            };
+        } else {
+            return response()->json(['status_code'=>'200','param'=>$request]);
+        };
+    }
 }

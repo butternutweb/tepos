@@ -3,14 +3,16 @@
 @section('title', 'Subscription Plan List')
 
 @section('js')
-@endsection
+<script type="text/javascript" src="{{$clientSnapUrl}}" data-client-key="{{$clientKey}}"></script>
+<script type="text/javascript" src="{{ asset('js/pages/subs_plan.js') }}"></script>   
+ @endsection
 
 @section('content')
 <div class="m-portlet m-portlet--mobile">
     <div class="m-portlet__body">
         <div class="m-pricing-table-1">
             <div class="m-pricing-table-1__items row">
-                @foreach ($subscription_plans as $subscription_plan)
+                @foreach ($subscription_plans as $idx => $subscription_plan)
                 <div class="m-pricing-table-1__item col-lg-4">
                         <div class="m-pricing-table-1__visual">
                             <div class="m-pricing-table-1__hexagon1"></div>
@@ -41,7 +43,7 @@
                             @endif
                         </span>
                         <div class="m-pricing-table-1__btn">
-                            <button type="button" class="btn btn-brand m-btn m-btn--custom m-btn--pill m-btn--wide m-btn--uppercase m-btn--bolder m-btn--sm">
+                            <button type="button" data-plan="{!!$subscription_plan->id!!}" class="btn btn-brand m-btn m-btn--custom m-btn--pill m-btn--wide m-btn--uppercase m-btn--bolder m-btn--sm btn-purchase">
                                 Purchase
                             </button>
                         </div>

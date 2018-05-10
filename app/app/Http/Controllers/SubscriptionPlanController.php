@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Butternut\SnapMidtrans;
 
 class SubscriptionPlanController extends Controller
 {
@@ -15,11 +16,18 @@ class SubscriptionPlanController extends Controller
      */
     public function index()
     {
-        if (\Illuminate\Support\Facades\Auth::user()->child()->first() instanceof \App\Owner) {
-            return view('pages.subscription_plan.index-owner')->with('subscription_plans', \App\SubscriptionPlan::orderBy('price', 'asc')->get());
+        $user = \Auth::user();
+        if ($user->child()->first() instanceof \App\Owner) {
+            $plans = \App\SubscriptionPlan::orderBy('price', 'asc')->get();
+            $data = [
+                'subscription_plans' =>$plans,
+                'clientKey' => SnapMidtrans::getClientKey(),
+                'clientSnapUrl' => SnapMidtrans::getClientScriptUrl()
+            ];
+            return view('pages.subscription_plan.index-owner',$data);
         }
 
-        if (\Illuminate\Support\Facades\Auth::user()->child()->first() instanceof \App\Admin) {
+        if ($user->child()->first() instanceof \App\Admin) {
             return view('pages.subscription_plan.index');
         }
 
@@ -282,5 +290,40 @@ class SubscriptionPlanController extends Controller
         }
 
         return response()->json(['error' => 'Permission denied.'], 403);
+    }
+
+// ===============================================================================================================
+// ===============================================================================================================
+
+    /**
+     * function to get midtrans snap token
+     * 
+     * @param Illuminate\Http\Request
+     * @return JSON 
+     */
+    public function getToken(Request $request) {
+        $plan = \App\SubscriptionPlan::find($request->id);
+        $user = \Auth::user();
+        $transaction = [
+            'transaction_details' => [
+                'order_id' => $user->name . time(),
+                'gross_amount' => $plan->price
+            ],
+            'item_details' => [
+                'id' => $plan->name,
+                'price' => $plan->price,
+                'quantity' => 1,
+                'name' => $plan->name . ' - 30 days subscription fee'
+            ],
+            'customer_details' => [
+                'first_name' => $user->name,
+                'last_name' => '',
+                'email' => $user->email,
+                'phone'=> $user->phone
+            ],
+            'custom_field1' => $user->child()->first()->id,
+            'custom_field2' => $plan->id
+        ];
+        return response()->json(['token' => SnapMidtrans::getSnapToken($transaction)]);
     }
 }

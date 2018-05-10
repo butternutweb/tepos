@@ -25,7 +25,7 @@ Route::middleware('auth')->post('/logout', 'AuthController@doLogout')->name('aut
 
 Route::middleware('auth')->group(function() {
     Route::get('/', 'DashboardController@getIndex')->name('dashboard.index');
-
+    
     Route::get('/profile', 'ProfileController@getIndex')->name('profile.index');
     Route::post('/profile', 'ProfileController@doIndex');
     Route::get('/profile/change', 'ProfileController@getChange')->name('profile.change');
@@ -36,8 +36,9 @@ Route::middleware('auth')->group(function() {
 
     Route::post('/subs-plan/ajax', 'SubscriptionPlanController@indexAjax');
     Route::post('/subs-plan/bulk-delete', 'SubscriptionPlanController@bulkDelete')->name('subs-plan.bulk-delete');
+    Route::get('/subs-plan/getToken','SubscriptionPlanController@getToken');
     Route::resource('/subs-plan', 'SubscriptionPlanController');
-
+    
     Route::post('/subs-trans/ajax', 'SubscriptionTransactionController@indexAjax');
     Route::post('/subs-trans/bulk-delete', 'SubscriptionTransactionController@bulkDelete')->name('subs-trans.bulk-delete');
     Route::resource('/subs-trans', 'SubscriptionTransactionController');
@@ -71,13 +72,14 @@ Route::middleware('auth')->group(function() {
     Route::post('/category/ajax', 'CategoryController@indexAjax');
     Route::post('/category/bulk-delete', 'CategoryController@bulkDelete')->name('category.bulk-delete');
     Route::resource('/category', 'CategoryController');
-
+    
     Route::post('/transaction/{transaction}/product/ajax', 'TransactionProductController@indexAjax');
     Route::post('/transaction/{transaction}/product/bulk-delete', 'TransactionProductController@bulkDelete')->name('transaction_.product.bulk-delete');
     Route::resource('/transaction/{transaction}/product', 'TransactionProductController', [
         'as' => 'transaction_'
     ]);
-
+    
+    Route::get('/transaction/invoice/{id}','TransactionController@getInvoice')->name('transaction.invoice');
     Route::get('/transaction/{transaction}/checkout', 'TransactionController@getCheckout')->name('transaction.checkout');
     Route::post('/transaction/{transaction}/checkout', 'TransactionController@doCheckout');
     Route::post('/transaction/addProduct', 'TransactionController@addProduct');

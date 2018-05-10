@@ -30,7 +30,7 @@
                     Payment Method:
                 </label>
                 <div class="col-lg-6">
-                    <input type="text" name="payment_method" class="form-control m-input" placeholder="Enter payment method" value="{{ old('payment_method') }}" aria-describedby="payment_method-error">
+                    <input type="text" name="payment_method" class="form-control m-input" placeholder="Enter payment method" value="Offline/Cash" aria-describedby="payment_method-error">
                     <div id="payment_method-error" class="form-control-feedback">{{ $errors->first('payment_method') }}</div>
                 </div>
                 <div class="col-md-4"></div>

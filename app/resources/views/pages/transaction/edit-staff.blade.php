@@ -4,6 +4,11 @@
 
 @section('js')
 <script src="{{ asset('js/pages/transaction-staff.js') }}" type="text/javascript"></script>
+<script>
+    $('#print-btn').click(function(){
+        window.open("{{route('transaction.invoice',$id)}}", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes");
+    })
+</script>
 @endsection
 
 @section('content')

@@ -101,7 +101,7 @@ class StoreTable extends Migration
         Schema::create('transaction_product', function(Blueprint $table) {
             $table->increments('id');
             $table->integer('qty');
-            
+            $table->string('note',50)->nullable();
             $table->integer('product_id')->unsigned();
             $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');
             $table->integer('transaction_id')->unsigned();

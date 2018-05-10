@@ -165,7 +165,7 @@
 										<li class="m-nav__item">
 											<div class="m-topbar__save-btn-outer">
 												<div class="m-topbar__save-btn">
-													<button class="btn btn-brand m-btn--bolder m-btn--uppercase" style="max-height: 32px">
+													<button id="print-btn" class="btn btn-brand m-btn--bolder m-btn--uppercase" style="max-height: 32px">
 														Print
 													</button>
 												</div>

@@ -420,7 +420,7 @@ class TransactionController extends Controller
             return view('pages.transaction.edit-staff')->with('categories', $categories);
         }
 
-        return view('pages.transaction.edit-staff')->with('categories', $categories)->with('products', $products)->with('transaction', $transaction);
+        return view('pages.transaction.edit-staff')->with('categories', $categories)->with('products', $products)->with('transaction', $transaction)->with('id',$id);
     }
 
     /**
@@ -1131,5 +1131,34 @@ class TransactionController extends Controller
         }
 
         return redirect()->intended(route('transaction.index'))->with('success', 'Successfully checked out transaction.');
+    }
+    
+    //==============================================================================================================================
+    //==============================================================================================================================
+
+    /**
+     * get invoice for a transaction
+     */
+    public function getInvoice($id) {
+        $transaction = \App\Transaction::find($id);
+        $productsList = collect([]);
+        $sum=0;
+        foreach ($transaction->products as $product){
+            $price = (array) \DB::table('store_product')->select('selling_price')->where('product_id',$product->id)->first();
+            $productsList->push([
+                'price' => $price['selling_price'],
+                'name' => $product->name,
+                'qty' => $product->pivot->qty
+            ]);
+            $sum += $price['selling_price']*$product->pivot->qty;
+        }
+        $data = [
+            'transaction' => $transaction,
+            'productsList' => $productsList,
+            'sum' => $sum,
+            'store' => \Auth::user()->child()->first()->store->name
+        ];
+        return view('pages.transaction.invoice',$data);
+
     }
 }
