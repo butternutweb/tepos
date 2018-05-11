@@ -67,6 +67,10 @@ var Datatable = function () {
                 title: "Payment Method",
                 width: 200,
             }, {
+                field: "payment_status",
+                title: "Payment Status",
+                width: 200,
+            }, {
                 field: "owner",
                 title: "Owner",
                 width: 200,

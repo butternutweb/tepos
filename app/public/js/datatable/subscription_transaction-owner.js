@@ -54,12 +54,21 @@ var Datatable = function () {
                 title: "Payment Method",
                 width: 200,
             }, {
+            }, {
+                field: "payment_status",
+                title: "Payment Status",
+                width: 200,
+            }, {
                 field: "subscription_plan",
                 title: "Subscription Plan",
                 width: 200,
                 template: function (row) {
                     return '<a class="m-link" href="/subs-plan/' + row.subscription_plan_id + '">' + row.subscription_plan + '</a>';
                 }
+            }, {
+                field: "subs_end",
+                title: "Subscription End",
+                width: 200,
             }]
         };
 

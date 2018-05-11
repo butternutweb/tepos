@@ -80,7 +80,7 @@ class SubscriptionTransactionController extends Controller
                 $subscription_transaction = new \App\SubscriptionTransaction;
                 $subscription_transaction->date = $request->date;
                 $subscription_transaction->payment_method = $request->payment_method;
-
+                $subscription_transaction->payment_status = "received";
                 $last_subscription_transaction = $owner->transactions()->orderBy('subs_end', 'desc')->first();
 
                 if ($last_subscription_transaction === NULL) {
@@ -198,6 +198,7 @@ class SubscriptionTransactionController extends Controller
                 }
 
                 $subscription_transaction->payment_method = $request->payment_method;
+                $subscription_transaction->payment_status = "byAdmin";
                 $subscription_transaction->owner()->associate($owner);
                 $subscription_transaction->plan()->associate($subscription_plan);
                 $subscription_transaction->save();
@@ -324,7 +325,7 @@ class SubscriptionTransactionController extends Controller
                     'field' => $field,
                 ],
                 'data' => DB::table('subs_transaction')
-                    ->selectRaw('subs_transaction.id, subs_transaction.date, subs_transaction.subs_end, subs_transaction.payment_method, subs_plan.id as subscription_plan_id, subs_plan.name as subscription_plan')
+                    ->selectRaw('subs_transaction.id, subs_transaction.date, subs_transaction.subs_end, subs_transaction.payment_method, subs_transaction.payment_status, subs_plan.id as subscription_plan_id, subs_plan.name as subscription_plan')
                     ->join('owner', 'subs_transaction.owner_id', 'owner.id')
                     ->where('owner.id', \Illuminate\Support\Facades\Auth::user()->child()->first()->id)
                     ->join('subs_plan', 'subs_transaction.subs_plan_id', 'subs_plan.id')
@@ -419,7 +420,7 @@ class SubscriptionTransactionController extends Controller
                     'field' => $field,
                 ],
                 'data' => DB::table('subs_transaction')
-                    ->selectRaw('subs_transaction.id, subs_transaction.date, subs_transaction.subs_end, subs_transaction.payment_method, owner.id as owner_id, account.username as owner, subs_plan.id as subscription_plan_id, subs_plan.name as subscription_plan')
+                    ->selectRaw('subs_transaction.id, subs_transaction.date, subs_transaction.subs_end, subs_transaction.payment_method, subs_transaction.payment_status, owner.id as owner_id, account.username as owner, subs_plan.id as subscription_plan_id, subs_plan.name as subscription_plan')
                     ->join('owner', 'subs_transaction.owner_id', 'owner.id')
                     ->join('account', 'owner.id', 'account.child_id')
                     ->where('account.child_type', 'Owner')
