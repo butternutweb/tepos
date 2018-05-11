@@ -535,7 +535,7 @@ class SubscriptionTransactionController extends Controller
                     // if status are capture and not settlement of credit card 
                     if (($transStat=='settlement' && $transaction->payment_status!='capture')||$transStat=='capture') {
                         // check if owner still has remaining days in his subscription
-                        if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now)) {
+                        if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now))) {
                             $transaction->subs_end = \Carbon\Carbon::parse($last_transaction->first()->subs_end)->addDays($subs_plan->duration_day);
                         } else {
                             $transaction->subs_end = $now->addDays($subs_plan->duration_day);
