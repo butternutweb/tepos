@@ -321,6 +321,7 @@ class SubscriptionPlanController extends Controller
                 'email' => $user->email,
                 'phone'=> $user->phone
             ],
+            'enabled_payments' => config('snapmidtrans.enabledPayments'),
             'custom_field1' => $user->child()->first()->id,
             'custom_field2' => $plan->id
         ];
