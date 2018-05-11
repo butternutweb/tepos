@@ -527,6 +527,7 @@ class SubscriptionTransactionController extends Controller
                     $transaction->payment_method = $request->payment_type;
                 };
 
+                $last_transaction=$owner->transactions->where('subs_plan_id', $subs_plan->id)->sortByDesc('subs_end');        
                 // if status are success and fraud_status are accept
                 if (($status=='200')&&($request->fraud_status=='accept' || $request->fraudstatus===NULL)) {
                     $transStat = $request->transaction_status;
@@ -534,8 +535,7 @@ class SubscriptionTransactionController extends Controller
                     // if status are capture and not settlement of credit card 
                     if (($transStat=='settlement' && $transaction->payment_status!='capture')||$transStat=='capture') {
                         // check if owner still has remaining days in his subscription
-                        $last_transaction=$owner->transactions->where('subs_plan_id', $subs_plan->id)->sortByDesc('subs_end');
-                        if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt(\Carbon\Carbon::now()))) {
+                        if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now)) {
                             $transaction->subs_end = \Carbon\Carbon::parse($last_transaction->first()->subs_end)->addDays($subs_plan->duration_day);
                         } else {
                             $transaction->subs_end = $now->addDays($subs_plan->duration_day);
@@ -545,7 +545,11 @@ class SubscriptionTransactionController extends Controller
 
                   //if status are canceled and owner is considered subscribed  
                 } elseif (\Carbon\Carbon::parse($transaction->subs_end)->gt($now)) {
-                    $transaction->subs_end = $now;
+                    if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now)) {
+                        $transaction->subs_end = $last_transaction->first()->subs_end;
+                    } else {
+                        $transaction->subs_end = $now;
+                    };
                     $msg = 'subscription cancelled';
                 } else {
                     $msg = $request->transaction_status;
