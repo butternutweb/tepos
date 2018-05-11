@@ -37,6 +37,7 @@ return [
                 "bca_klikbca",
                 "bca_klikpay",
                 "bri_epay",
+                "gopay",
                 "telkomsel_cash",
                 "echannel",
                 "bbm_money",
