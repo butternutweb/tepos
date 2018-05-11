@@ -9,3 +9,14 @@ function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzAB
     }
     return $str;
 }
+function money_short($number){
+    if ($number < 1000) {
+        return number_format($number);
+    } elseif ($number < 1000000) {
+        return number_format($number / 1000) . 'K';
+    } else if ($number < 1000000000) {
+        return number_format($number / 1000000) . 'M';
+    } else {
+        return number_format($number / 1000000000) . 'B';
+    };
+}

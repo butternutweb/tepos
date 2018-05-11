@@ -23,4 +23,12 @@ class Transaction extends Model
     function products() {
         return $this->belongsToMany('App\Product', 'transaction_product')->withPivot('id', 'qty', 'note');
     }
+
+    function amount(){
+        $amount=0;
+        foreach ($this->products as $product){
+            $amount += $product->pivot->qty * $product->stores->find($this->staff->store->id)->pivot->selling_price;
+        };
+        return $amount;
+    }
 }

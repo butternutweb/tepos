@@ -22,4 +22,8 @@ class Staff extends Model
     function store() {
         return $this->belongsTo('App\Store');
     }
+    
+    function transactions() {
+        return $this->hasMany('App\Transaction');
+    }
 }

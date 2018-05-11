@@ -113,20 +113,20 @@
 		<article>
 			<h1>Recipient</h1>
 			<address >
-				<p>{{$store}}</p>
+				<p>{{$data->staff->store->name}}</p>
 			</address>
 			<table class="inv_detail">
 				<tr>
 					<th><span >Invoice #</span></th>
-					<td><span >: {{$transaction->invoice}}</span></td>
+					<td><span >: {{$data->invoice}}</span></td>
 				</tr>
 				<tr>
 					<th><span >Date</span></th>
-					<td><span >: {{\Carbon\Carbon::parse($transaction->date)->format('F d, Y')}}</span></td>
+					<td><span >: {{\Carbon\Carbon::parse($data->date)->format('F d, Y')}}</span></td>
 				</tr>
 				<tr>
 					<th><span >Amount Due</span></th>
-					<td><span id="prefix" >: Rp</span> <span class="priced">{{$sum}}</span></td>
+					<td><span id="prefix" >: Rp</span> <span class="priced">{{$amount}}</span></td>
 				</tr>
 			</table>
 			<table class="inventory">
@@ -139,12 +139,12 @@
 					</tr>
 				</thead>
 				<tbody>
-                    @foreach ($productsList as $product)
+                    @foreach ($data->products as $product)
 					<tr>
-						<td><span >{{$product['qty']}}</span></td>
-						<td><span data-prefix>Rp</span> <span class="priced">{{$product['price']}}</span></td>
+						<td><span >{{$qty=$product->pivot->qty}}</span></td>
+						<td><span data-prefix>Rp</span> <span class="priced">{{$bill = $product->stores->find($data->staff->store->id)->pivot->selling_price}}</span></td>
 						<td><span >{{$product['name']}}</span></td>
-						<td><span data-prefix>Rp</span> <span class="priced">{{$product['price'] * $product['qty']}}</span></td>
+						<td><span data-prefix>Rp</span> <span class="priced">{{$qty*$bill}}</span></td>
                     </tr>
                     @endforeach
 				</tbody>
@@ -152,15 +152,15 @@
 			<table class="balance">
 				<tr>
 					<th><span >Total</span></th>
-					<td><span data-prefix>Rp</span> <span id="total"  class="priced">{{$sum}}</span></td>
+					<td><span data-prefix>Rp</span> <span id="total"  class="priced">{{$amount}}</span></td>
 				</tr>
 				<tr>
 					<th><span >Amount Paid</span></th>
-					<td><span data-prefix>Rp</span> <span id="amount_paid" contenteditable>00</span></td>
+					<td><span data-prefix>Rp</span> <span id="amount_paid" contenteditable>0</span></td>
 				</tr>
 				<tr>
 					<th><span >Balance Due</span></th>
-					<td><span data-prefix>Rp</span> <span id="balance_due">{{-$sum}}</span></td>
+					<td><span data-prefix>Rp</span> <span id="balance_due">{{-$amount}}</span></td>
                 </tr>
                 <tr>
                     <td colspan="2" class="print-area" >
@@ -197,7 +197,10 @@
             }
             
             document.addEventListener('keydown', updateField);
-		    document.addEventListener('keyup', updateField);
+            document.addEventListener('keyup', updateField);
+            document.onafterprint(function(){
+                window.close();
+            })
         </script>
 	</body>
 </html>

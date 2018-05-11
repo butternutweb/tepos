@@ -23,4 +23,8 @@ class Store extends Model
     function products() {
         return $this->belongsToMany('App\Product', 'store_product')->withPivot('id', 'selling_price');
     }
+
+    function costs(){
+        return $this->hasMany('App\Cost');
+    }
 }

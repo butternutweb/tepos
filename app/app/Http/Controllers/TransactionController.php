@@ -1141,24 +1141,7 @@ class TransactionController extends Controller
      */
     public function getInvoice($id) {
         $transaction = \App\Transaction::find($id);
-        $productsList = collect([]);
-        $sum=0;
-        foreach ($transaction->products as $product){
-            $price = (array) \DB::table('store_product')->select('selling_price')->where('product_id',$product->id)->first();
-            $productsList->push([
-                'price' => $price['selling_price'],
-                'name' => $product->name,
-                'qty' => $product->pivot->qty
-            ]);
-            $sum += $price['selling_price']*$product->pivot->qty;
-        }
-        $data = [
-            'transaction' => $transaction,
-            'productsList' => $productsList,
-            'sum' => $sum,
-            'store' => \Auth::user()->child()->first()->store->name
-        ];
-        return view('pages.transaction.invoice',$data);
+        return view('pages.transaction.invoice',['data'=>$transaction,'amount'=>$transaction->amount()]);
 
     }
 }

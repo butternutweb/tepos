@@ -19,7 +19,21 @@ class Owner extends Model
         return $this->hasMany('App\SubscriptionTransaction', 'owner_id');
     }
 
-    function staffs() {
-        return $this->hasMany('App\Staff', 'owner_id');
+    function stores() {
+        return $this->hasMany('App\Store', 'owner_id')->with('staffs');
+    }
+
+    function transactionSum(){
+        $sum=0;
+        foreach($this->stores as $store){
+            foreach($store->staffs as $staff){
+                $transactions= $staff->transactions;
+                $sum += $transactions->count();
+                foreach ($transactions as $transaction){
+                    
+                };
+            };
+        };
+        return $sum;
     }
 }
