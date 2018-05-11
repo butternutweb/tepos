@@ -528,15 +528,15 @@ class SubscriptionTransactionController extends Controller
                 };
 
                 // if status are success and fraud_status are accept
-                if (($status=='200')&&($request->fraud_status=='accept')) {
+                if (($status=='200')&&($request->fraud_status=='accept' || $request->fraudstatus===NULL)) {
                     $transStat = $request->transaction_status;
                     
                     // if status are capture and not settlement of credit card 
                     if (($transStat=='settlement' && $transaction->payment_status!='capture')||$transStat=='capture') {
-                        
                         // check if owner still has remaining days in his subscription
-                        if ($last_transaction=\App\SubscriptionTransaction::where('subs_plan_id', $subs_plan)->where('subs_end','>',$now)->latest('subs_end')->first()) {
-                            $transaction->subs_end = $last_transaction->subs_end->addDays($subs_plan->duration_day);
+                        $last_transaction=$owner->transactions->where('subs_plan_id', $subs_plan->id)->sortByDesc('subs_end');
+                        if ($last_transaction->count()>0) {
+                            $transaction->subs_end = \Carbon\Carbon::parse($last_transaction->first()->subs_end)->addDays($subs_plan->duration_day);
                         } else {
                             $transaction->subs_end = $now->addDays($subs_plan->duration_day);
                         };
