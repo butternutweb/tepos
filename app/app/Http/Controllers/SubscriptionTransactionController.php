@@ -545,7 +545,7 @@ class SubscriptionTransactionController extends Controller
 
                   //if status are canceled and owner is considered subscribed  
                 } elseif (\Carbon\Carbon::parse($transaction->subs_end)->gt($now)) {
-                    if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now))) {
+                    if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now))&&($last_transaction->first()->order_id != $request->order_id)) {
                         $transaction->subs_end = $last_transaction->first()->subs_end;
                     } else {
                         $transaction->subs_end = $now;
