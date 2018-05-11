@@ -13,4 +13,5 @@ use Illuminate\Http\Request;
 |
 */
 
+//route untuk menerima http post notification dari midtrans
 Route::post('/midtrnotif','SubscriptionTransactionController@midtrNotif')->middleware('api');

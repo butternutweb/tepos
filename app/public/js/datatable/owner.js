@@ -7,7 +7,7 @@ var Datatable = function () {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:8000/owner/ajax',
+                        url: '/owner/ajax',
                         method: 'post',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

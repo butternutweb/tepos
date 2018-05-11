@@ -9,7 +9,7 @@ var Datatable = function () {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:8000/store/' + store_id  + '/cost/ajax',
+                        url: '/store/' + store_id  + '/cost/ajax',
                         method: 'post',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -161,7 +161,7 @@ var Datatable = function () {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:8000/store/' + store_id + '/staff/ajax',
+                        url: '/store/' + store_id + '/staff/ajax',
                         method: 'post',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -340,7 +340,7 @@ var Datatable = function () {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:8000/store/' + store_id + '/product/ajax',
+                        url: '/store/' + store_id + '/product/ajax',
                         method: 'post',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

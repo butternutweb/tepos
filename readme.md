@@ -27,3 +27,4 @@
     - pada saat checkout barang harusnya otomatis tersimpan data transaksi jika ada perubahan
     - saat menyimpan transaksi, harusnya redirect ke halaman detail transaksi, bukan kembali ke index transaksi
     
+    - cpanel pake mariaDB, <_<.. beberapa penyesuaian dilakukan..
