@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function() {
     Route::post('/subs-plan/ajax', 'SubscriptionPlanController@indexAjax');
     Route::post('/subs-plan/bulk-delete', 'SubscriptionPlanController@bulkDelete')->name('subs-plan.bulk-delete');
     Route::get('/subs-plan/getToken','SubscriptionPlanController@getToken');
+    Route::get('/subs-plan/dataplan','SubscriptionPlanController@dataplan');
     Route::resource('/subs-plan', 'SubscriptionPlanController');
     
     Route::post('/subs-trans/ajax', 'SubscriptionTransactionController@indexAjax');

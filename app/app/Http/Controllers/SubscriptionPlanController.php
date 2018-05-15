@@ -22,7 +22,8 @@ class SubscriptionPlanController extends Controller
             $data = [
                 'subscription_plans' =>$plans,
                 'clientKey' => SnapMidtrans::getClientKey(),
-                'clientSnapUrl' => SnapMidtrans::getClientScriptUrl()
+                'clientSnapUrl' => SnapMidtrans::getClientScriptUrl(),
+                'subscribed' => $user->child()->first()->nowActiveSubscription()
             ];
             return view('pages.subscription_plan.index-owner',$data);
         }
@@ -296,6 +297,22 @@ class SubscriptionPlanController extends Controller
 // ===============================================================================================================
 
     /**
+     * function to get current owner subscription data
+     * 
+     * @param Illuminate\Http\Request
+     * @return JSON 
+     */
+    public function dataplan(Request $request) {
+        $nowActive = \Auth::user()->child()->first()->nowActiveSubscription();
+        $data = [
+            'subs_plan' => $request->id,
+            'activeSubs' => $nowActive,
+            'activeName' => \App\SubscriptionPlan::find($nowActive->subs_plan_id)->name
+        ];
+        return response()->json($data);
+    }
+    
+    /**
      * function to get midtrans snap token
      * 
      * @param Illuminate\Http\Request
@@ -323,7 +340,8 @@ class SubscriptionPlanController extends Controller
             ],
             'enabled_payments' => config('snapmidtrans.enabledPayments'),
             'custom_field1' => $user->child()->first()->id,
-            'custom_field2' => $plan->id
+            'custom_field2' => $plan->id,
+            'custom_field3' => $request->cancellation
         ];
         return response()->json(['token' => SnapMidtrans::getSnapToken($transaction)]);
     }

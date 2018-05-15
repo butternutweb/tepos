@@ -78,18 +78,18 @@ class SubscriptionTransactionController extends Controller
     
             try {
                 $subscription_transaction = new \App\SubscriptionTransaction;
-                $subscription_transaction->date = $request->date;
                 $subscription_transaction->payment_method = $request->payment_method;
                 $subscription_transaction->payment_status = "received";
                 $last_subscription_transaction = $owner->transactions()->orderBy('subs_end', 'desc')->first();
 
                 if ($last_subscription_transaction === NULL) {
-                    $subscription_transaction->subs_end = \Carbon\Carbon::now()->addDays($subscription_plan->duration_day);
+                    $subscription_transaction->date = $request->date;
+                    $subscription_transaction->subs_end = \Carbon\Carbon::parse($request->date)->addDays($subscription_plan->duration_day);
                 }
                 else {
+                    $subscription_transaction->date = \Carbon\Carbon::parse($last_subscription_transaction->subs_end);
                     $subscription_transaction->subs_end = \Carbon\Carbon::parse($last_subscription_transaction->subs_end)->addDays($subscription_plan->duration_day);
-                }
-
+                };
                 $subscription_transaction->owner()->associate($owner);
                 $subscription_transaction->plan()->associate($subscription_plan);
                 $subscription_transaction->save();
@@ -190,15 +190,9 @@ class SubscriptionTransactionController extends Controller
             try {
                 $subscription_transaction->date = $request->date;
 
-                $last_subscription_transactions = $owner->transactions()->where('subs_end', '>=', $subscription_transaction->subs_end)->get();
-                
-                foreach ($last_subscription_transactions as $last_subscription_transaction) {
-                    $last_subscription_transaction->subs_end = \Carbon\Carbon::parse($last_subscription_transaction->subs_end)->addDays($subscription_plan->duration_day - $subscription_transaction->plan()->first()->duration_day);
-                    $last_subscription_transaction->save();
-                }
-
+                $subscription_transaction->subs_end = \Carbon\Carbon::parse($request->date)->addDays($subscription_plan->duration_day);
+               
                 $subscription_transaction->payment_method = $request->payment_method;
-                $subscription_transaction->payment_status = "byAdmin";
                 $subscription_transaction->owner()->associate($owner);
                 $subscription_transaction->plan()->associate($subscription_plan);
                 $subscription_transaction->save();
@@ -534,22 +528,48 @@ class SubscriptionTransactionController extends Controller
                     
                     // if status are capture and not settlement of credit card 
                     if (($transStat=='settlement' && $transaction->payment_status!='capture')||$transStat=='capture') {
+                        $transaction->date = $now;
                         // check if owner still has remaining days in his subscription
-                        if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now))) {
-                            $transaction->subs_end = \Carbon\Carbon::parse($last_transaction->first()->subs_end)->addDays($subs_plan->duration_day);
-                        } else {
-                            $transaction->subs_end = $now->addDays($subs_plan->duration_day);
+                        if ($request->custom_field3 == 'none'){
+                            $transaction->subs_end = \Carbon\Carbon::now()->addDays($subs_plan->duration_day);
+                        } elseif ($request->custom_field3 == 'continue-old') {
+                            $last = $owner->activeSubscriptions()->last();
+                            if ($last != NULL){
+                                $transaction->date = $last->subs_end;
+                                $transaction->subs_end = \Carbon\Carbon::parse($last->subs_end)->addDays($subs_plan->duration_day);
+                            } else {
+                                $transaction->subs_end = \Carbon\Carbon::now()->addDays($subs_plan->duration_day);
+                            };
+                        } elseif ($request->custom_field3 == 'cancel-old') {
+                            $active = $owner->nowActiveSubscription();
+                            $active->subs_end= $now;
+                            $active->save();
+                            $last_date = \Carbon\Carbon::now()->addDays($subs_plan->duration_day);
+                            $transaction->subs_end = $last_date;
+                            foreach ($owner->activeSubscriptions()->sortByDesc('subs_end') as $sub){
+                                if (\Carbon\Carbon::parse($sub->subs_end)->gt(\Carbon\Carbon::parse($last_date))&&$sub->id != $transaction->id) {
+                                    $sub->date = \Carbon\Carbon::parse($last_date);
+                                    $last_date = \Carbon\Carbon::parse($last_date)->addDays($sub->plan->duration_day);
+                                    $sub->subs_end = $last_date;
+                                    $sub->save();
+                                };
+                            };
                         };
                     };
                     $msg = 'subscription added';
 
                   //if status are canceled and owner is considered subscribed  
                 } elseif (\Carbon\Carbon::parse($transaction->subs_end)->gt($now)) {
-                    if (($last_transaction->count()>0)&&(\Carbon\Carbon::parse($last_transaction->first()->subs_end)->gt($now))&&($last_transaction->first()->order_id != $request->order_id)) {
-                        $transaction->subs_end = $last_transaction->first()->subs_end;
-                    } else {
-                        $transaction->subs_end = $now;
-                    };
+                    $last_date = \Carbon\Carbon::parse($transaction->date);
+                    $transaction->subs_end = $transaction->date;
+                    foreach ($owner->activeSubscriptions()->sortByDesc('subs_end') as $sub){
+                        if (\Carbon\Carbon::parse($sub->subs_end)->gt(\Carbon\Carbon::parse($last_date))&&$sub->id != $transaction->id) {
+                            $sub->subs_end = \Carbon\Carbon::parse($last_date);
+                            $last_date = \Carbon\Carbon::parse($last_date)->subDays($sub->plan->duration_day);
+                            $sub->date = $last_date;
+                            $sub->save();
+                        };
+                    }
                     $msg = 'subscription cancelled';
                 } else {
                     $msg = $request->transaction_status;

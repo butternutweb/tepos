@@ -53,8 +53,9 @@ var Datatable = function () {
                 title: "Name",
                 width: 200,
             }, {
-                field: "Actions",
-                title: "Actions",
+//================================================================
+                field: "subcategory",
+                title: "Sub Category",
                 width: 110,
                 sortable: false,
                 overflow: 'visible',
@@ -62,13 +63,24 @@ var Datatable = function () {
                     return '\
                         <a href="/category/' + row.id + '" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
                             <i class="la la-edit"></i>\
-                        </a>\
+                        </a>';
+                }
+            }, {
+                field: "delete",
+                title: "Delete",
+                width: 50,
+                sortable: false,
+                overflow: 'visible',
+                template: function (row) {
+                    return '\
                         <button type="button" class="m-portlet__nav-link btn m-btn m-btn--hover-danger m-btn--icon m-btn--icon-only m-btn--pill" data-toggle="modal" data-target="#m_delete_category_modal" onclick="Datatable.deleteCategoryModal(' + row.id + ')">\
                             <i class="la la-trash"></i>\
                         </button>\
                     ';
                 }
-            }]
+            }
+//=================================================================
+        ]
         };
 
         var datatable = $('.m_datatable#m_datatable_category').mDatatable(options);

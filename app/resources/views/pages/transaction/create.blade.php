@@ -18,7 +18,7 @@
                     </label>
                     <div class="col-lg-6">
                         <div class="input-group date" id="datetime">
-                            <input type="text" name="date" class="form-control m-input" readonly="true" value="{{ old('date') }}" placeholder="Enter date" aria-describedby="date-error">
+                            <input type="text" name="date" class="form-control m-input" readonly="true" value="{{ \Carbon\Carbon::now()->format('Y-m-d H:i') }}" placeholder="Enter date" aria-describedby="date-error">
                             <span class="input-group-addon">
                                 <i class="la la-calendar glyphicon-th"></i>
                             </span>

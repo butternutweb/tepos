@@ -74,7 +74,9 @@
                         </select>
                     </div>
                     <div id="sub_category_id-error" class="form-control-feedback">{{ $errors->first('sub_category_id') }}</div>
-                    <a class="m-link" href="{{ route('category.create') }}">+ Create category</a>
+                    {{--sK edit--}}
+                    <a class="m-link" href="{{ route('category.index') }}">category list</a>
+                    {{-- -------- --}}
                 </div>
                 <div class="col-md-4">
                     
