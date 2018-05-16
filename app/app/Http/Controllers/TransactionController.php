@@ -1141,7 +1141,7 @@ class TransactionController extends Controller
      */
     public function getInvoice($id) {
         $transaction = \App\Transaction::find($id);
-        return view('pages.transaction.invoice',['data'=>$transaction,'amount'=>$transaction->amount()]);
+        return view('pages.transaction.invoice',['data'=>$transaction,'amount'=>$transaction->amount()['value']]);
 
     }
 }

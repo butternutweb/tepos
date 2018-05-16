@@ -307,7 +307,7 @@ class SubscriptionPlanController extends Controller
         $data = [
             'subs_plan' => $request->id,
             'activeSubs' => $nowActive,
-            'activeName' => \App\SubscriptionPlan::find($nowActive->subs_plan_id)->name
+            'activeName' => ($nowActive==null)?'':\App\SubscriptionPlan::find($nowActive->subs_plan_id)->name
         ];
         return response()->json($data);
     }

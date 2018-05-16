@@ -6,6 +6,7 @@
         menambahkan subscription transaction terkait.
     - menambahkan fitur untuk menerima notifikasi dari midrans, dan otomatis mengubah status transaksi subscription
     - 
+
 ## 2. Fitur print
     - menambahkan route untuk invoice sama html untuk invoice
     - styling di file blade invoice, langsung aja inline.
@@ -14,9 +15,9 @@
     - menampilkan total transaction, dan nominal jumlah transaksi dari owner. all-time transactions
     - menampilkan profit bulan ini, profit = (penjualan - capital price) - cost_bulan_ini
     - menampilkan jumlah total produk yg aktif, serta jumlah stores
+    - menampilkan data transaksi sepuluh hari terakhir, nominal serta jumlah produk terjual
+    - menampilkan data produk terlaris selama 30 hari terakhir
 
-
-    
 # PERSONAL THOUGHT ==== just my two cents ====
     - Inconsistency .. tabel migration untuk foreign gk di "dropColumn" Foreign column nya
     - Dump SQL != file migration.. -_-'

@@ -565,7 +565,7 @@ class SubscriptionTransactionController extends Controller
                     foreach ($owner->activeSubscriptions()->sortByDesc('subs_end') as $sub){
                         if (\Carbon\Carbon::parse($sub->subs_end)->gt(\Carbon\Carbon::parse($last_date))&&$sub->id != $transaction->id) {
                             $sub->subs_end = \Carbon\Carbon::parse($last_date);
-                            $last_date = \Carbon\Carbon::parse($last_date)->subDays($sub->plan->duration_day);
+                            $last_date = \Carbon\Carbon::parse($last_date)->subDays($subs_plan->duration_day);
                             $sub->date = $last_date;
                             $sub->save();
                         };

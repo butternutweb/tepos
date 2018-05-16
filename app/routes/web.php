@@ -25,6 +25,7 @@ Route::middleware('auth')->post('/logout', 'AuthController@doLogout')->name('aut
 
 Route::middleware('auth')->group(function() {
     Route::get('/', 'DashboardController@getIndex')->name('dashboard.index');
+    Route::get('/dashb/dashdatas', 'DashboardController@getDashboardData');
     
     Route::get('/profile', 'ProfileController@getIndex')->name('profile.index');
     Route::post('/profile', 'ProfileController@doIndex');

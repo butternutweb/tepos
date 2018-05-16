@@ -27,4 +27,14 @@ class Store extends Model
     function costs(){
         return $this->hasMany('App\Cost');
     }
+
+    /**
+     * function to get the last transaction total up to 16 days
+     * 
+     * @return Array
+     */
+    function getLastTotalTransaction(){
+        $total = collect([]);
+        
+    }
 }
