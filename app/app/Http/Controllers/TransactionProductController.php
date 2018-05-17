@@ -498,7 +498,6 @@ class TransactionProductController extends Controller
                     ->join('transaction', 'transaction_product.transaction_id', 'transaction.id')
                     ->where('transaction.id', $transaction_id)
                     ->join('staff', 'transaction.staff_id', 'staff.id')
-                    ->join('store as store2', 'staff.store_id', 'store.id')
                     ->orderBy($field, $sort)->skip(($page-1)*$perpage)->take($perpage)->get()
             ], 200);
         }

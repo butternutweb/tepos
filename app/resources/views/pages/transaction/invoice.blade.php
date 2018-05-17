@@ -160,7 +160,7 @@
 				</tr>
 				<tr>
 					<th><span >Balance Due</span></th>
-					<td><span data-prefix>Rp</span> <span id="balance_due">{{-$amount}}</span></td>
+					<td><span data-prefix>Rp</span> <span class="priced" id="balance_due">{{-$amount}}</span></td>
                 </tr>
                 <tr>
                     <td colspan="2" class="print-area" >
@@ -190,7 +190,7 @@
                 }
             }
             function updateField(){
-                due.innerHTML= parsePrice(parseInt(paid.innerHTML) - parseInt(total.innerHTML)*1000);
+                due.innerHTML= parsePrice(parseInt(paid.innerHTML) - parseFloat(total.innerHTML)*1000);
             }
             function parsePrice(number) {
                 return number.toFixed().replace(/(\d)(?=(\d{3})+(,|$))/g, '$1.');
@@ -198,6 +198,10 @@
             
             document.addEventListener('keydown', updateField);
             document.addEventListener('keyup', updateField);
+            paid.addEventListener('focus',function(){
+                temp = this.innerHTML.toString().replace(/\D/g,'')
+                this.innerHTML= parseInt(temp);
+            });
             document.onafterprint(function(){
                 window.close();
             })

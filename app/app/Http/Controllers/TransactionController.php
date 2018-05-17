@@ -33,18 +33,8 @@ class TransactionController extends Controller
     public function create(Request $request)
     {
         if (\Illuminate\Support\Facades\Auth::user()->child()->first() instanceof \App\Owner) {
-            $last_subscription_transaction = \Illuminate\Support\Facades\Auth::user()->child()->first()->transactions()->where('subs_end', '>=', \Carbon\Carbon::now())->orderBy('subs_end', 'asc')->first();
-
-            if ($last_subscription_transaction === NULL) {
-                return redirect()->route('transaction.index')->with('error', 'Need subscribe to access this feature.');
-            }
-            
-            $stores = \App\Store::where('owner_id', \Illuminate\Support\Facades\Auth::user()->child()->first()->id)->take($last_subscription_transaction->plan()->first()->store_number)->get()->pluck('id')->toArray();
-
-            return view('pages.transaction.create')->with('statuses', \App\Status::whereIn('name', ['Completed', 'On Progress'])->get())
-            ->with('staffs', \App\Staff::join('store', 'staff.store_id', 'store.id')->select('staff.*')->where('store.owner_id', \Illuminate\Support\Facades\Auth::user()->child()->first()->id)->whereIn('staff.store_id', $stores)->get());
+            return redirect()->route('transaction.index')->with('error', 'You are not allowed to see this page.');
         }
-
         if (\Illuminate\Support\Facades\Auth::user()->child()->first() instanceof \App\Admin) {
             return view('pages.transaction.create')->with('statuses', \App\Status::whereIn('name', ['Completed', 'On Progress'])->get())->with('staffs', \App\Staff::all());
         }
@@ -96,7 +86,7 @@ class TransactionController extends Controller
             return redirect()->route('transaction.index')->with('error', 'Permission denied.');
         }
 
-        $products = $subCategory->products()->join('store_product', 'product.id', 'store_product.product_id')->select('product.*')->get();
+        $products = $subCategory->products()->join('store_product', 'product.id', 'store_product.product_id')->select('product.*','store_product.selling_price')->get();
         
         if (count($products) <= 0) {
             $request->session()->flash('error_message', 'Please contact admin to add products.');
@@ -413,7 +403,7 @@ class TransactionController extends Controller
             return redirect()->route('transaction.index')->with('error', 'Permission denied.');
         }
 
-        $products = $subCategory->products()->join('store_product', 'product.id', 'store_product.product_id')->select('product.*')->get();
+        $products = $subCategory->products()->join('store_product', 'product.id', 'store_product.product_id')->select('product.*','store_product.selling_price')->get();
         
         if (count($products) <= 0) {
             $request->session()->flash('error_message', 'Please contact admin to add products.');

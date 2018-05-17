@@ -19,11 +19,13 @@ var Pages = function () {
             maxboostedstep: 10000000,
         });
 
-        $('.bootstrap-touchspin-down, .bootstrap-touchspin-up').mousedown(function(e) {
-            var product_id = $(e.target).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val();
-
-            var product_number = $(e.target).closest('.m-bootstrap-touchspin-brand').find('.m_touchspin.form-control').val();
-            
+        $('.bootstrap-touchspin-down, .bootstrap-touchspin-up').mousedown(function(e){
+            updateTransaction($(e.target).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(e.target).closest('.m-bootstrap-touchspin-brand').find('.m_touchspin.form-control').val());
+        });
+        $('.m_touchspin.form-control').blur(function(){
+            updateTransaction($(this).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(this).val());
+        });
+        function updateTransaction(product_id, product_number) {
             $.ajax({
                 type: 'post',
                 url: '/transaction/addProduct',
@@ -56,7 +58,7 @@ var Pages = function () {
                     toastr.success(data.success);
                 }
             });
-        });
+        };
     };
 
     return {

@@ -79,6 +79,7 @@
                     </div>
                 </div>
                 <div class="col-xl-6 order-1 order-xl-2 m--align-right">
+                    @if (Auth::user()->child()->first() instanceof \App\Admin || Auth::user()->child()->first() instanceof \App\Staff)
                     <a href="{{ route('transaction.create') }}" class="btn btn-accent m-btn m-btn--custom m-btn--icon m-btn--air">
                         <span>
                             <i class="la la-plus"></i>
@@ -88,6 +89,7 @@
                         </span>
                     </a>
                     <div class="m-separator m-separator--dashed d-xl-none"></div>
+                    @endif
                 </div>
             </div>
         </div>

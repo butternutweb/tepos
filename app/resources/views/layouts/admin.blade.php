@@ -263,43 +263,55 @@
 								</div>
 							</li>
 						@endif
-						<li class="m-menu__item {{ strpos(Route::current()->getName(), 'transaction.') === 0 ||
-						strpos(Route::current()->getName(), 'transaction_.product') === 0
-						?'m-menu__item--active' : '' }}" aria-haspopup="true" data-menu-submenu-toggle="click">
-							<a href="#" class="m-menu__link m-menu__toggle">
-								<span class="m-menu__item-here"></span>
-								<i class="m-menu__link-icon flaticon-time-3"></i>
-								<span class="m-menu__link-title">
-									<span class="m-menu__link-wrap">
-										<span class="m-menu__link-text">
-											Transaction
+						@if (Auth::user()->child()->first() instanceof \App\Owner)
+							<li class="m-menu__item {{ strpos(Route::current()->getName(), 'transaction.') === 0 ?'m-menu__item--active' : '' }}">
+								<a href="{{ route('transaction.index') }}" class="m-menu__link ">
+									<span class="m-menu__item-here"></span>
+									<i class="m-menu__link-icon flaticon-time-3"></i>
+									<span class="m-menu__link-text">
+										Transaction
+									</span>
+								</a>
+							</li>
+						@else
+							<li class="m-menu__item {{ strpos(Route::current()->getName(), 'transaction.') === 0 ||
+							strpos(Route::current()->getName(), 'transaction_.product') === 0
+							?'m-menu__item--active' : '' }}" aria-haspopup="true" data-menu-submenu-toggle="click">
+								<a href="#" class="m-menu__link m-menu__toggle">
+									<span class="m-menu__item-here"></span>
+									<i class="m-menu__link-icon flaticon-time-3"></i>
+									<span class="m-menu__link-title">
+										<span class="m-menu__link-wrap">
+											<span class="m-menu__link-text">
+												Transaction
+											</span>
 										</span>
 									</span>
-								</span>
-								<i class="m-menu__ver-arrow la la-angle-right"></i>
-							</a>
-							<div class="m-menu__submenu">
-								<span class="m-menu__arrow"></span>
-								<ul class="m-menu__subnav">
-									<li class="m-menu__item" aria-haspopup="true">
-										<a href="{{ route('transaction.index') }}" class="m-menu__link ">
-											<i class="m-menu__link-icon flaticon-list-3"></i>
-											<span class="m-menu__link-text">
-												Transaction List
-											</span>
-										</a>
-									</li>
-									<li class="m-menu__item" aria-haspopup="true" data-redirect="true">
-										<a href="{{ route('transaction.create') }}" class="m-menu__link ">
-											<i class="m-menu__link-icon flaticon-add"></i>
-											<span class="m-menu__link-text">
-												Create Transaction
-											</span>
-										</a>
-									</li>
-								</ul>
-							</div>
-						</li>
+									<i class="m-menu__ver-arrow la la-angle-right"></i>
+								</a>
+								<div class="m-menu__submenu">
+									<span class="m-menu__arrow"></span>
+									<ul class="m-menu__subnav">
+										<li class="m-menu__item" aria-haspopup="true">
+											<a href="{{ route('transaction.index') }}" class="m-menu__link ">
+												<i class="m-menu__link-icon flaticon-list-3"></i>
+												<span class="m-menu__link-text">
+													Transaction List
+												</span>
+											</a>
+										</li>
+										<li class="m-menu__item" aria-haspopup="true" data-redirect="true">
+											<a href="{{ route('transaction.create') }}" class="m-menu__link ">
+												<i class="m-menu__link-icon flaticon-add"></i>
+												<span class="m-menu__link-text">
+													Create Transaction
+												</span>
+											</a>
+										</li>
+									</ul>
+								</div>
+							</li>
+						@endif
 						@if (Auth::user()->child()->first() instanceof \App\Admin || Auth::user()->child()->first() instanceof \App\Owner)
 							<li class="m-menu__item {{ strpos(Route::current()->getName(), 'category.') === 0 ||
 							strpos(Route::current()->getName(), 'sub-category.') === 0
@@ -441,6 +453,9 @@
 						<div class="mr-auto">
 							<h3 class="m-subheader__title m-subheader__title--separator">
 								@yield('title')
+								@if ((strpos(Route::current()->getName(), 'product.') === 0) && \Auth::user()->child()->first() instanceof \App\Owner)
+								<span style="font-weight: 400;font-size: 1.1rem;padding-left: 1rem;"> (Produk yang ditambahkan pada halaman ini adalah produk katalog. Agar dapat dijual, harap produk ditambahkan pada halaman store)</span>
+								@endif
 							</h3>
 							<ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
 								@if (strpos(Route::current()->getName(), 'dashboard.') === 0)
