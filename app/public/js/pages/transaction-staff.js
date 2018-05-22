@@ -59,6 +59,14 @@ var Pages = function () {
                 }
             });
         };
+        //=====================================================
+        $('#print-btn').click(function(){
+            $('#print_inv').modal('show');
+        })
+        $('#print_inv').on('click','.btn-print',function(){
+            window.open("/transaction/invoice/"+$(this).attr('data-transaction'), "_blank", "toolbar=no,scrollbars=no,resizable=yes");
+            $('#print_inv').modal('hide');
+        })
     };
 
     return {

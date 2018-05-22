@@ -3,7 +3,7 @@
 		<meta charset="utf-8">
 		<title>Invoice</title>
 	</head>
-	<body onload="parseAll()">
+	<body onload="init()">
         <style>
                 *
                 {
@@ -11,7 +11,7 @@
                     box-sizing: content-box;
                     color: inherit;
                     font-family: inherit;
-                    font-size: inherit;
+                    font-size: 10px;
                     font-style: inherit;
                     font-weight: inherit;
                     line-height: inherit;
@@ -37,10 +37,10 @@
                 
                 /* page */
                 
-                html { font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 0.5in; }
+                html { font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 15px; height: 'fit-content'; }
                 html { background: #999; cursor: default; }
                 
-                body { box-sizing: border-box; height: 11in; margin: 0 auto; overflow: hidden; padding: 0.5in; width: 8.5in; }
+                body { box-sizing: border-box; height: fit-content; margin: 0 auto; overflow: hidden; padding: 5mm; width: 75mm; }
                 body { background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5); }
                 
                 /* header */
@@ -58,32 +58,29 @@
                 
                 /* article */
                 
-                article, article address, table.inv_detail, table.inventory { margin: 0 0 3em; }
+                table.inventory { margin: 0 0 3em;}
                 article:after { clear: both; content: ""; display: table; }
                 article h1 { clip: rect(0 0 0 0); position: absolute; }
                 
-                article address { float: right; font-size: 125%; font-weight: bold; }
+                article address p{ text-align: right; font-size: 125%; font-weight: bold; margin-bottom: 1em;}
                 
                 /* table meta & balance */
                 
-                table.balance { float: right; width: 36%;font-size: 13px;}
-                table.inv_detail {float:left; width: 36%; background: #88bcc1; font-size: 13px; border-radius: 6px; padding-left: 10px;}
+                table.balance { float: right; width: 70%;font-size: 13px;}
+                table.inv_detail {width: 70%; font-size: 13px; border: none; padding-left: 5px; margin: 0 0 1em}
                 table.inv_detail:after, table.balance:after { clear: both; content: ""; }
                 
                 /* table meta */
-                
-                table.inv_detail th { width: 40%; border: none; background: none;font-weight: 600}
-                table.inv_detail td { width: 60%; border: none; background: none;}
+                table.inv_detail th { font-weight: 600; width: 45%; border: none; background: none; padding: 0}
+                table.inv_detail td { width: 55%; border: none; background: none; padding: 0}
                 
                 /* table items */
                 
                 table.inventory { clear: both; width: 100%; }
                 table.inventory th { font-weight: bold; text-align: center; background: #88bcc1}
                 
-                table.inventory td:nth-child(1), table.inventory th:nth-child(1) { width: 6%; text-align: center}
-                table.inventory td:nth-child(2), table.inventory th:nth-child(2) { width: 15%; text-align: center }
-                table.inventory th:nth-child(4) { width: 20%}
-                table.inventory td:nth-child(4) { text-align: right}
+                table.inventory td:nth-child(1), table.inventory th:nth-child(1) { width: 70%; text-align: left}
+                table.inventory td:nth-child(2), table.inventory th:nth-child(2) { width: 30%; text-align: right }
                 
                 /* table balance */
                 
@@ -103,14 +100,13 @@
                 @media print {
                     * { -webkit-print-color-adjust: exact; }
                     html { background: none; padding: 0; }
-                    body { box-shadow: none; margin: 0; }
+                    body { box-shadow: none; margin: 0;}
                     span:empty { display: none; }
                     .print-btn {visibility: hidden}
+                    article {position: fixed; left:10px;right: 10px;}
                 }
-                
-                @page { margin: 0; }
         </style>
-		<article>
+		<article id="inv_body">
 			<h1>Recipient</h1>
 			<address >
 				<p>{{$data->staff->store->name}}</p>
@@ -130,24 +126,20 @@
 				</tr>
 			</table>
 			<table class="inventory">
-				<thead>
-					<tr>
-						<th><span >Qty</span></th>
-						<th><span >Rate</span></th>
-						<th><span >Name</span></th>
-						<th><span >Price</span></th>
-					</tr>
-				</thead>
-				<tbody>
-                    @foreach ($data->products as $product)
-					<tr>
-						<td><span >{{$qty=$product->pivot->qty}}</span></td>
-						<td><span data-prefix>Rp</span> <span class="priced">{{$bill = $product->stores->find($data->staff->store->id)->pivot->selling_price}}</span></td>
-						<td><span >{{$product['name']}}</span></td>
-						<td><span data-prefix>Rp</span> <span class="priced">{{$qty*$bill}}</span></td>
+                <thead>
+                    <tr>
+                        <th>item</th>
+                        <th>price</th>
                     </tr>
-                    @endforeach
-				</tbody>
+                </thead>
+                <tbody>
+                @foreach ($data->products as $product)
+                    <tr>
+                        <td><span >{{$qty=$product->pivot->qty}} x {{$product['name']}} @ {{$bill = $product->stores->find($data->staff->store->id)->pivot->selling_price}}</span></td>
+                        <td><span data-prefix>Rp</span> <span class="priced">{{$qty*$bill}}</span></td>
+                    </tr>
+                @endforeach
+                </tbody>
 			</table>
 			<table class="balance">
 				<tr>
@@ -174,11 +166,30 @@
             var due = document.getElementById('balance_due');
             var total = document.getElementById('total');
             var paid = document.getElementById('amount_paid');
-            function parseAll(){
+            var cssPagedMedia = (function () {
+                var style = document.createElement('style');
+                document.head.appendChild(style);
+                return function (rule) {
+                    style.innerHTML = rule;
+                };
+            }());
+            
+            cssPagedMedia.size = function (size) {
+                cssPagedMedia('@page {margin: 0; size: ' + size + '}');
+            };
+            
+            function init(){
                 var elems = document.getElementsByClassName('priced');
+                var body = document.body;
+
+                var height = Math.max( body.scrollHeight, body.offsetHeight )+30;
+                var width = Math.max( body.scrollWidth, body.offsetWidth )+30;
                 for (i=0; i<elems.length; i++){
                     elems[i].innerHTML=parsePrice(parseInt(elems[i].innerHTML));
                 };
+                invHeight = document.getElementById('inv_body').scrollHeight;
+                window.resizeBy(width - window.innerWidth, height - window.innerHeight);
+                cssPagedMedia.size('75mm '+invHeight+'px');
             };
             function printThis(){
                 if ((parseInt(paid.innerHTML)<=0)||(parseInt(due.innerHTML)<0)){
@@ -186,6 +197,7 @@
                 }
                 else {
                     paid.innerHTML = parsePrice(parseInt(paid.innerHTML));
+                    window.resizeBy(window.outerWidth, 0);
                     window.print();
                 }
             }
