@@ -155,6 +155,7 @@
 					<td><span data-prefix>Rp</span> <span class="priced" id="balance_due">{{$data->amount - $amount}}</span></td>
                 </tr>
             </table>
+            <hr>
             
         </article>
         <script>
@@ -182,7 +183,7 @@
                 for (i=0; i<elems.length; i++){
                     elems[i].innerHTML=parsePrice(parseInt(elems[i].innerHTML));
                 };
-                invHeight = document.getElementById('inv_body').scrollHeight;
+                invHeight = document.getElementById('inv_body').scrollHeight +50;
                 window.resizeBy(width - window.innerWidth, height - window.innerHeight);
                 cssPagedMedia.size('75mm '+invHeight+'px');
                 window.resizeBy(window.outerWidth, 0);
