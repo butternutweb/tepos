@@ -156,9 +156,9 @@
 										<li class="m-nav__item">
 											<div class="m-topbar__save-btn-outer">
 												<div class="m-topbar__save-btn">
-												<a class="btn btn-warning m-btn--bolder m-btn--uppercase" style="max-height: 32px" href="{{ route('transaction.checkout', $transaction->id) }}">
-														Checkout
-													</a>
+												<a id="checkout_btn" class="btn btn-warning m-btn--bolder m-btn--uppercase" style="max-height: 32px">
+													Checkout
+												</a>
 												</div>
 											</div>
 										</li>

@@ -3,7 +3,6 @@ var Datatable = function () {
     var run = function () {
         
         var transaction_id = $("#transaction-id").html();
-
         var options = {
             data: {
                 type: 'remote',

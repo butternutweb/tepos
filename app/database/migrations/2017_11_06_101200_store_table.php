@@ -90,7 +90,7 @@ class StoreTable extends Migration
             $table->string('invoice', 20);
             $table->dateTime('date');
             $table->string('note', 50)->nullable();
-
+            $table->integer('amount');
             $table->integer('status_id')->unsigned();
             $table->foreign('status_id')->references('id')->on('status');
             $table->integer('staff_id')->unsigned();

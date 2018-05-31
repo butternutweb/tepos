@@ -75,9 +75,9 @@ Route::middleware('auth')->group(function() {
     Route::post('/category/bulk-delete', 'CategoryController@bulkDelete')->name('category.bulk-delete');
     Route::resource('/category', 'CategoryController');
     
-    Route::post('/transaction/{transaction}/product/ajax', 'TransactionProductController@indexAjax');
-    Route::post('/transaction/{transaction}/product/bulk-delete', 'TransactionProductController@bulkDelete')->name('transaction_.product.bulk-delete');
-    Route::resource('/transaction/{transaction}/product', 'TransactionProductController', [
+    Route::post('/transaction/{transaction_id}/product/ajax', 'TransactionProductController@indexAjax');
+    Route::post('/transaction/{transaction_id}/product/bulk-delete', 'TransactionProductController@bulkDelete')->name('transaction_.product.bulk-delete');
+    Route::resource('/transaction/{transaction_id}/product', 'TransactionProductController', [
         'as' => 'transaction_'
     ]);
     

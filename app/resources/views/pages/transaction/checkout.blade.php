@@ -3,7 +3,6 @@
 @section('title', 'Checkout')
 
 @section('js')
-	<script src="{{ asset('js/datatable/transaction-checkout.js') }}" type="text/javascript"></script>
 	<script>
 		$('#checkout_print_inv').on('click','.btn-submitprint',function(){
 			window.open("{{route('transaction.invoice',$transaction->id)}}", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes");
@@ -41,15 +40,39 @@
 					<div class="col-lg-4">
 						<input type="text" class="form-control m-input m-input--solid" value="{{ explode(':', $transaction->date)[0] . ':' . explode(':', $transaction->date)[1] }}" readonly>
 					</div>
+					<label class="col-lg-3 col-form-label">
+						Amount Paid:
+					</label>
+					<div class="col-lg-4">
+						<div class="input-group">
+							<span class="input-group-addon" id="basic-addon1">
+								Rp
+							</span>
+							<input type="text" class="form-control m-input m-input--solid" value="{{ $transaction->amount }}" readonly>
+						</div>
+					</div>
+				</div>
+				<div class="form-group m-form__group row">
 					<label class="col-lg-1 col-form-label">
 						Total:
 					</label>
-					<div class="col-lg-6">
+					<div class="col-lg-4">
 						<div class="input-group">
 							<span class="input-group-addon" id="basic-addon1">
 								Rp
 							</span>
 							<input type="text" class="form-control m-input m-input--solid" value="{{ $total }}" readonly>
+						</div>
+					</div>
+					<label class="col-lg-3 col-form-label">
+						Change:
+					</label>
+					<div class="col-lg-4">
+						<div class="input-group">
+							<span class="input-group-addon" id="basic-addon1">
+								Rp
+							</span>
+							<input type="text" class="form-control m-input m-input--solid" value="{{ $transaction->amount-$total }}" readonly>
 						</div>
 					</div>
 				</div>
@@ -65,7 +88,28 @@
 				<div class="col-md-4 "></div>
 			</div>
 			<!-- MAIN TABLE START -->
-			<div class="m_datatable" id="m_datatable_checkout"></div>
+			<div class="m_datatable" id="m_datatable_checkout">
+				<table class="table table-sm m-table m-table--head-bg-brand table-striped">
+					<thead class="thead-inverse">
+						<tr>
+							<th style="width:5%;">Qty</th>
+							<th style="width:15%;">Price</th>
+							<th>Item</th>
+							<th style="width:20%">Subtotal</th>
+						</tr>
+					</thead>
+					<tbody>
+					@foreach ($products as $key => $product)
+						<tr>
+							<td>{{$product->qty}}</td>
+							<td>Rp.{{number_format($product->selling_price,0,',','.')}}</td>
+							<td>{{$product->name}}</td>
+							<td>Rp.{{number_format($product->selling_price*$product->qty,0,',','.')}}</td>
+						</tr>
+					@endforeach
+					</tbody>
+			  </table>
+			</div>
 		</div>
 		<div class="m-portlet__foot m-portlet__foot--fit">
 			<div class="m-form__actions m-form__actions">
@@ -86,7 +130,7 @@
 		</div>
 	</form>
 </div>
-<div id="transaction-id" style="display: none;">{{ $transaction->id }}</div>
+<div id="transaction-id" style="display:none;">{{ $transaction->id }}</div>
 <div class="modal fade" id="checkout_print_inv" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">

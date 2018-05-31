@@ -4,12 +4,18 @@ var Pages = function () {
 
         $('#m_save_form').submit(function(e) {
             e.preventDefault();
-            var note = $(e.target).closest('#m_header_nav').find('#m_note').val();
-            var note_form = $(e.target).find('#m_save_form_note');
-            note_form.val(note);
-            $(this).unbind('submit').submit();
+            if ($('input[name="amount"]').val()!==null && parseInt($('input[name="amount"]').val()) < parseInt($('#amount_paid').html())){
+                $('input[name="amount"]').focus();
+            } else {
+                $(this).append('<input type="hidden" name="amount" value="'+$('input[name="amount"]').val()+'">');
+                $(this).append('<input type="hidden" name="note" value="'+$('textarea[name="note"]').val()+'">');
+                $(this).unbind('submit').submit();
+            };
         });
-
+        $('#checkout_btn').click(function(){
+            $('#m_save_form').append('<input type="hidden" name="do_checkout" value="1">');
+            $('#m_save_form').submit();
+        })
         $('.m_touchspin').TouchSpin({
             buttondown_class: 'btn btn-secondary',
             buttonup_class: 'btn btn-secondary',
@@ -20,23 +26,25 @@ var Pages = function () {
         });
 
         $('.bootstrap-touchspin-down, .bootstrap-touchspin-up').mousedown(function(e){
-            updateTransaction($(e.target).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(e.target).closest('.m-bootstrap-touchspin-brand').find('.m_touchspin.form-control').val());
+            updateTransaction($(e.target).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(e.target).closest('.m-bootstrap-touchspin-brand').find('.m_touchspin.form-control').val(),$(e.target).closest('.m-bootstrap-touchspin-brand').find('span.price').html().replace('.',''));
         });
         $('.m_touchspin.form-control').blur(function(){
-            updateTransaction($(this).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(this).val());
+            updateTransaction($(this).closest('.m-bootstrap-touchspin-brand').find('input[name="product_id"]').val(),$(this).val(),$(this).closest('.m-bootstrap-touchspin-brand').find('span.price').html().replace('.',''));
         });
-        function updateTransaction(product_id, product_number) {
+        function updateTransaction(product_id, product_number, price) {
             $.ajax({
                 type: 'post',
                 url: '/transaction/addProduct',
                 data: {
                     'product_id': product_id,
                     'product_number': product_number,
+                    'product_price': price
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
+                    $('#amount_paid').html(data.sales);
                     toastr.options = {
                         "closeButton": false,
                         "debug": false,
@@ -54,8 +62,10 @@ var Pages = function () {
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     };
-                    
                     toastr.success(data.success);
+                },
+                error: function(err){
+                    console.log(err);
                 }
             });
         };

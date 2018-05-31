@@ -148,16 +148,11 @@
 				</tr>
 				<tr>
 					<th><span >Amount Paid</span></th>
-					<td><span data-prefix>Rp</span> <span id="amount_paid" contenteditable>0</span></td>
+					<td><span data-prefix>Rp</span> <span class="priced" id="amount_paid">{{$data->amount}}</span></td>
 				</tr>
 				<tr>
-					<th><span >Balance Due</span></th>
-					<td><span data-prefix>Rp</span> <span class="priced" id="balance_due">{{-$amount}}</span></td>
-                </tr>
-                <tr>
-                    <td colspan="2" class="print-area" >
-                        <button class="print-btn" onclick="printThis()">PRINT</button>
-                    </td>
+					<th><span >Change</span></th>
+					<td><span data-prefix>Rp</span> <span class="priced" id="balance_due">{{$data->amount - $amount}}</span></td>
                 </tr>
             </table>
             
@@ -190,17 +185,10 @@
                 invHeight = document.getElementById('inv_body').scrollHeight;
                 window.resizeBy(width - window.innerWidth, height - window.innerHeight);
                 cssPagedMedia.size('75mm '+invHeight+'px');
+                window.resizeBy(window.outerWidth, 0);
+                window.print();
+                window.close();
             };
-            function printThis(){
-                if ((parseInt(paid.innerHTML)<=0)||(parseInt(due.innerHTML)<0)){
-                    paid.focus();
-                }
-                else {
-                    paid.innerHTML = parsePrice(parseInt(paid.innerHTML));
-                    window.resizeBy(window.outerWidth, 0);
-                    window.print();
-                }
-            }
             function updateField(){
                 due.innerHTML= parsePrice(parseInt(paid.innerHTML) - parseFloat(total.innerHTML)*1000);
             }

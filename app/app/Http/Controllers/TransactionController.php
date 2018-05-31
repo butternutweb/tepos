@@ -66,7 +66,7 @@ class TransactionController extends Controller
 
         if (strpos($request->header('referer'), 'create') === false) {
             foreach ($request->session()->all() as $key => $value) {
-                if (strpos($key, '_product_id_') === 0) {
+                if ((strpos($key, '_product_id_') === 0) || ($key=='sales_total')) {
                     $request->session()->forget($key);
                 }
             }
@@ -151,6 +151,7 @@ class TransactionController extends Controller
     
                 $transaction->date = $request->date;
                 $transaction->note = $request->note;
+                $transaction->amount= 2500;
                 $transaction->staff()->associate($staff);
                 $transaction->status()->associate($status);
                 $transaction->save();
@@ -201,6 +202,7 @@ class TransactionController extends Controller
     
                 $transaction->date = $request->date;
                 $transaction->note = $request->note;
+                $transaction->amount= 2500;
                 $transaction->staff()->associate($staff);
                 $transaction->status()->associate($status);
                 $transaction->save();
@@ -250,6 +252,7 @@ class TransactionController extends Controller
 
             $transaction->date = \Carbon\Carbon::now();
             $transaction->note = $request->note;
+            $transaction->amount= $request->amount;
             $transaction->staff()->associate(\Illuminate\Support\Facades\Auth::user()->child()->first());
             $transaction->status()->associate($status);
             $transaction->save();
@@ -279,7 +282,7 @@ class TransactionController extends Controller
             return redirect()->back()->withInput()->with('error', 'Something wrong with the database.');
         }
 
-        return redirect()->intended(route('transaction.index'))->with('success', 'Successfully created transaction.');
+        return redirect()->intended(route('transaction.show',['id'=>$transaction->id]))->with('success', 'Successfully created transaction.');
     }
 
     /**
@@ -383,7 +386,7 @@ class TransactionController extends Controller
 
         if (strpos($request->header('referer'), 'edit') === false) {
             foreach ($request->session()->all() as $key => $value) {
-                if (strpos($key, '_product_id_') === 0) {
+                if ((strpos($key, '_product_id_') === 0) || ($key=='sales_total')) {
                     $request->session()->forget($key);
                 }
             }
@@ -408,8 +411,11 @@ class TransactionController extends Controller
         if (count($products) <= 0) {
             $request->session()->flash('error_message', 'Please contact admin to add products.');
             return view('pages.transaction.edit-staff')->with('categories', $categories);
-        }
-
+        };
+        $request->session()->put('sales_total',$transaction->amount()['value']);
+        foreach ($transaction->products as $key => $product) {
+            $request->session()->put('_product_id_'.$product->id, $product->pivot->qty);
+        };
         return view('pages.transaction.edit-staff')->with('categories', $categories)->with('products', $products)->with('transaction', $transaction)->with('id',$id);
     }
 
@@ -544,7 +550,7 @@ class TransactionController extends Controller
             catch (\Illuminate\Database\QueryException $e) {
                 return redirect()->back()->withInput()->with('error', 'Something wrong with the database.');
             }
-    
+            
             return redirect()->intended(route('transaction.index'))->with('success', 'Successfully edited transaction.');
         }
         
@@ -574,6 +580,7 @@ class TransactionController extends Controller
 
         try {
             $transaction->note = $request->note;
+            $transaction->amount= $request->amount;
             $transaction->save();
 
             foreach ($request->session()->all() as $key => $value) {
@@ -601,8 +608,11 @@ class TransactionController extends Controller
         catch (\Illuminate\Database\QueryException $e) {
             return redirect()->back()->withInput()->with('error', 'Something wrong with the database.');
         }
-
-        return redirect()->intended(route('transaction.index'))->with('success', 'Successfully edited transaction.');
+        if ($request->has('do_checkout')){
+            return redirect()->intended(route('transaction.checkout', $transaction->id));
+        } else {
+            return redirect()->intended(route('transaction.show',['id'=>$transaction->id]))->with('success', 'Successfully edited transaction.');
+        }
     }
 
     /**
@@ -1062,8 +1072,12 @@ class TransactionController extends Controller
     }
 
     public function addProduct(Request $request) {
+        $total = $request->session()->get('sales_total','0');
+        $beforeNum = $request->session()->get('_product_id_' . $request->product_id,'0');
+        $total = $total - $beforeNum*$request->product_price + $request->product_number*$request->product_price;
         $request->session()->put('_product_id_' . $request->product_id, $request->product_number);
-        return response()->json(['success' => 'Successfully changed product.', 'data' => $request->product_id . ' ' . $request->product_number, 'session' => $request->session()->get('_product_id_' . $request->product_id), 'all_session' => $request->session()->all()], 200);
+        $request->session()->put('sales_total',$total);
+        return response()->json(['success' => 'Successfully changed product.', 'data' => $request->product_id . ' ' . $request->product_number,'sales' => $total, 'session' => $request->session()->get('_product_id_' . $request->product_id), 'all_session' => $request->session()->all()], 200);
     }
 
     public function getCheckout(Request $request, $id) {
@@ -1087,8 +1101,14 @@ class TransactionController extends Controller
                 ->join('store_product', 'product.id', 'store_product.product_id')
                 ->where('store_product.store_id', $transaction->staff()->first()->store()->first()->id)
                 ->where('transaction_product.transaction_id', $transaction->id)->first();
+        $products = \DB::table('transaction_product')
+            ->where('transaction_id',$transaction->id)
+            ->join('product', 'transaction_product.product_id', 'product.id')
+            ->join('store_product','transaction_product.product_id','store_product.product_id')
+            ->where('store_id',$transaction->staff()->first()->store()->first()->id)
+            ->select('qty','selling_price','name')->get();
 
-        return view('pages.transaction.checkout')->with('transaction', $transaction)->with('total', $total->total);
+        return view('pages.transaction.checkout')->with('transaction', $transaction)->with('total', $total->total)->with('products',$products);
     }
 
     public function doCheckout(Request $request, $id) {
